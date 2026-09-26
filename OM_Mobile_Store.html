@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OM Mobile Store</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f5f7fb;color:#172033}
+header{background:#101828;color:white;padding:18px 16px;position:sticky;top:0;z-index:5}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.logo{font-size:25px;font-weight:800}.cart{background:#fff;color:#101828;border:0;border-radius:20px;padding:9px 14px;font-weight:bold}
+.hero{background:linear-gradient(135deg,#111827,#2563eb);color:#fff;padding:32px 18px}
+.hero h1{font-size:32px;margin-bottom:8px}.hero p{opacity:.9}
+.search{padding:15px;background:white;position:sticky;top:70px;z-index:4}
+.search input{width:100%;padding:13px 15px;border:1px solid #d0d5dd;border-radius:12px;font-size:16px}
+.container{max-width:1100px;margin:auto;padding:18px}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:15px}
+.card{background:white;border-radius:16px;padding:12px;box-shadow:0 4px 16px #10182812}
+.card img{width:100%;height:175px;object-fit:contain;border-radius:12px;background:#f2f4f7}
+.card h3{margin:10px 0 5px;font-size:17px}.price{font-size:20px;font-weight:800;color:#155eef}
+.old{text-decoration:line-through;color:#98a2b3;font-size:13px;margin-left:5px}
+button{cursor:pointer}.add{width:100%;margin-top:10px;padding:11px;border:0;border-radius:10px;background:#155eef;color:white;font-weight:bold}
+section h2{margin:8px 0 15px}
+footer{margin-top:25px;background:#101828;color:white;text-align:center;padding:25px 15px}
+.whatsapp{display:inline-block;margin-top:12px;background:#16a34a;color:white;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:bold}
+.empty{text-align:center;padding:25px;color:#667085}
+#cartBox{display:none;background:white;margin:15px;padding:18px;border-radius:15px;box-shadow:0 4px 18px #0001}
+.item{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #eee;padding:10px 0}
+.remove{border:0;background:#fee4e2;color:#b42318;border-radius:7px;padding:5px 8px}
+@media(max-width:420px){.hero h1{font-size:27px}.card img{height:145px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="top">
+    <div class="logo">📱 OM Mobile Store</div>
+    <button class="cart" onclick="toggleCart()">🛒 Cart (<span id="count">0</span>)</button>
+  </div>
+</header>
+
+<div class="hero">
+  <h1>आपका अपना Mobile Store</h1>
+  <p>Smartphones और Accessories — आसान Shopping</p>
+</div>
+
+<div class="search">
+  <input id="search" type="search" placeholder="🔎 मोबाइल खोजें..." oninput="showProducts()">
+</div>
+
+<div id="cartBox">
+  <h2>आपका Cart</h2>
+  <div id="cartItems"></div>
+  <h3 id="total"></h3>
+  <button class="add" onclick="order()">📲 WhatsApp पर Order करें</button>
+</div>
+
+<main class="container">
+  <section>
+    <h2>🔥 Featured Mobiles</h2>
+    <div id="products" class="products"></div>
+  </section>
+</main>
+
+<footer>
+  <h2>OM Mobile Store</h2>
+  <p>अपने पसंदीदा मोबाइल के लिए संपर्क करें।</p>
+  <a class="whatsapp" href="https://wa.me/919999999999" target="_blank">WhatsApp पर संपर्क करें</a>
+  <p style="margin-top:12px;font-size:13px;opacity:.7">© 2026 OM Mobile Store</p>
+</footer>
+
+<script>
+// ====== EDIT PRODUCTS HERE ======
+// नाम, कीमत और फोटो URL अपनी जरूरत के अनुसार बदलें।
+const products = [
+  {id:1,name:"OM Smartphone X1",price:12999,old:14999,img:"https://placehold.co/500x500/png?text=OM+X1"},
+  {id:2,name:"OM Smartphone Pro",price:17999,old:19999,img:"https://placehold.co/500x500/png?text=OM+Pro"},
+  {id:3,name:"OM 5G Max",price:22999,old:24999,img:"https://placehold.co/500x500/png?text=OM+5G"},
+  {id:4,name:"Wireless Earbuds",price:1499,old:1999,img:"https://placehold.co/500x500/png?text=Earbuds"}
+];
+
+let cart=[];
+
+function money(n){return "₹"+n.toLocaleString("en-IN")}
+
+function showProducts(){
+  const q=document.getElementById("search").value.toLowerCase();
+  const list=products.filter(p=>p.name.toLowerCase().includes(q));
+  document.getElementById("products").innerHTML=list.length ? list.map(p=>`
+    <div class="card">
+      <img src="${p.img}" alt="${p.name}">
+      <h3>${p.name}</h3>
+      <div class="price">${money(p.price)} <span class="old">${money(p.old)}</span></div>
+      <button class="add" onclick="addCart(${p.id})">🛒 Add to Cart</button>
+    </div>`).join("") : '<div class="empty">कोई product नहीं मिला।</div>';
+}
+function addCart(id){
+  const p=products.find(x=>x.id===id);
+  cart.push(p); updateCart(); alert(p.name+" cart में जोड़ दिया गया!");
+}
+function updateCart(){
+  document.getElementById("count").textContent=cart.length;
+  const box=document.getElementById("cartItems");
+  box.innerHTML=cart.length ? cart.map((p,i)=>`
+    <div class="item"><span>${p.name}<br><b>${money(p.price)}</b></span>
+    <button class="remove" onclick="removeCart(${i})">हटाएँ</button></div>`).join("") : "<p class='empty'>Cart खाली है।</p>";
+  document.getElementById("total").textContent="Total: "+money(cart.reduce((s,p)=>s+p.price,0));
+}
+function removeCart(i){cart.splice(i,1);updateCart();}
+function toggleCart(){
+  const b=document.getElementById("cartBox");
+  b.style.display=b.style.display==="block"?"none":"block";
+  updateCart();
+}
+function order(){
+  if(!cart.length){alert("पहले कोई product cart में जोड़ें।");return;}
+  const text="नमस्ते OM Mobile Store, मुझे ये products order करने हैं:%0A"+cart.map(p=>"- "+p.name+" - "+money(p.price)).join("%0A");
+  window.open("https://wa.me/919999999999?text="+text,"_blank");
+}
+showProducts();
+</script>
+</body>
+</html>
